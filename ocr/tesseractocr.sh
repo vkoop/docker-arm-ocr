@@ -2,7 +2,7 @@
 # OCR.sh
 # multithreaded OCR with tesseract 3.03/3.04,
 # tested in Ubuntu 14.04/16.04
-# works in memory (/run/shm/)
+# works in memory (/dev/shm/)
 # needs pdftk, pdftoppm, tesseract-ocr
 # Michael Luthardt <edv@dr-luthardt.de> 2016
 
@@ -48,8 +48,8 @@ NCPUS=$(lscpu | sed -n '/^CPU(s)/s/CPU(s): *//p')
 MAXJOBS=$((($NCPUS+1)/2))
 
 # work in memory:
-cp "$1" /run/shm/
-cd /run/shm
+cp "$1" /dev/shm/
+cd /dev/shm
 rm -f pg_* pg-* # as a precaution
 
 # burst input PDF into pages
@@ -89,8 +89,8 @@ wait
 cd - &>/dev/null
 
 # concatenate pdf's to input_ocr.pdf
-if [ `cat /run/shm/err` -eq 0 ]; then
-	pdftk /run/shm/pg_*.pdf cat output "${1%.*}_ocr.pdf"
+if [ `cat /dev/shm/err` -eq 0 ]; then
+	pdftk /dev/shm/pg_*.pdf cat output "${1%.*}_ocr.pdf"
 	[ $? -eq 0 ] && echo -e "\n\n\t... ${1%.*}_ocr.pdf created\n" \
 	|| echo -e "\n\n\t... Error encountered.  No output created.\n"
 else
@@ -98,6 +98,6 @@ else
 fi
 
 # clear memory
-rm -f /run/shm/pg_* /run/shm/err
+rm -f /dev/shm/pg_* /dev/shm/err
 
 exit
